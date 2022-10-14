@@ -4,11 +4,11 @@ import math
 import cv2
 import numpy as np
 
-img = cv2.imread("Images/4.jpg")
+img = cv2.imread("Cropped and perspective corrected boards/4-42.jpg")
 cv2.imshow("image", img)
 # 6.1. Use template matching to make an image which shows the positions of the three hearts, similar to the one below
 # Hint: Use a combination of the functions matchTemplate, normalize, and threshold
-crownup_template = cv2.imread("Images\Crown2UP.PNG")
+crownup_template = cv2.imread("Crowns/Crown2UP.PNG")
 #crowndown_template = cv2.imread("Images\Crown2DOWN.PNG")
 #crownleft_template = cv2.imread("Images\Crown2LEFT.PNG")
 
