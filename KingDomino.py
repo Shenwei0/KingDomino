@@ -5,8 +5,8 @@ img = cv2.imread("Cropped and perspective corrected boards/4-42.jpg")
 
 height, width, channels = img.shape
 
-imgBredde = int (width/5)
-imgHøjde = int (height/5)
+imgBredde = int(width/5)
+imgHøjde = int(height/5)
 
 for Ysquare in range(5):
     for Xsquare in range(5):
