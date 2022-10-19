@@ -1,19 +1,21 @@
 import cv2
 import numpy as np
 
-img = cv2.imread("Cropped and perspective corrected boards/4-42.jpg")
+img = cv2.imread("Cropped and perspective corrected boards/31-67-27t.jpg")
 
-height, width, channels = img.shape
 
-imgBredde = int(width/5)
-imgHøjde = int(height/5)
+def findTiles(img):
+    height, width, _ = img.shape
 
-for Ysquare in range(5):
-    for Xsquare in range(5):
-        imgSliced = img[imgHøjde*Ysquare:imgHøjde*(Ysquare+1), imgBredde*Xsquare:imgBredde*(Xsquare+1)]
-        cv2.imshow(f"Sliced{Xsquare} x {Ysquare}", imgSliced)
+    imgBredde = int(width/5)
+    imgHøjde = int(height/5)
 
+    
+    tiles = [img[x:x+100,y:y+100] for x in range(0,img.shape[0],100) for y in range(0,img.shape[1],100)]
+    return tiles
+
+sliced = findTiles(img)
+
+cv2.imshow('win', sliced[5])
 cv2.waitKey(0)
-
-
 #morten
