@@ -5,17 +5,13 @@ img = cv2.imread("Cropped and perspective corrected boards/31-67-27t.jpg")
 
 
 def findTiles(img):
-    height, width, _ = img.shape
-
-    imgBredde = int(width/5)
-    imgHøjde = int(height/5)
-
-    
     tiles = [img[x:x+100,y:y+100] for x in range(0,img.shape[0],100) for y in range(0,img.shape[1],100)]
     return tiles
 
 sliced = findTiles(img)
 
-cv2.imshow('win', sliced[5])
+test =cv2.putText(sliced[2],'test', (20,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255),2)
+
+cv2.imshow('win', test)
 cv2.waitKey(0)
 #morten
