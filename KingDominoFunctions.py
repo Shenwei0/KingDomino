@@ -1,12 +1,14 @@
-from pickle import TRUE
 import cv2
 from math import isclose
 import numpy as np
-from sqlalchemy import false, true
+
 
 
 ####################################################################
 # Function declarations
+
+
+
 
 
 def readImage(image, TYPE = 1):
@@ -49,7 +51,7 @@ def identifyTile(image):
 
 
 # Read the image
-img = readImage("Cropped and perspective corrected boards/57-64.jpg")
+img = readImage("Cropped and perspective corrected boards/27-67.jpg")
 
 
 # Make an array with the individual tiles in the image
