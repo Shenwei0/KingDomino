@@ -2,6 +2,8 @@ import cv2
 import numpy as np
 from math import isclose
 
+# Differtiate biomes using mean value of the 3 color channels independently
+
 
 def findTiles(image):
     tiles = [image[x:x+100,y:y+100] for x in range(0,image.shape[0],100) for y in range(0,image.shape[1],100)]
