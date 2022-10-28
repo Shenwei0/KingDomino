@@ -70,7 +70,7 @@ def findValues(image):
 
     print(f'Blue: {imgBmean}, Green: {imgGmean},  Red: {imgRmean}')
 
-img = cv2.imread("Cropped and perspective corrected boards/26-48.jpg", 1)
+img = cv2.imread("Cropped and perspective corrected boards/34-36.jpg", 1)
 
 tiles = findTiles(img)
 blurredTiles = [identifyBlurredTile(blurImage(tiles[x], (999,999))) for x in range(25)]
