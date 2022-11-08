@@ -134,7 +134,7 @@ loadTemplates()
 
 # Find all pictures used for training
 os.chdir('./Cropped and perspective corrected boards')
-train_photos = glob.glob('./*train.jpg')
+train_photos = glob.glob('./*reez.jpg')
 
 print(len(train_photos))
 # Loop igennem billeder
