@@ -1,24 +1,67 @@
 import cv2
 import numpy as np
 
-img = cv2.imread("Cropped and perspective corrected boards/31-67-27t.jpg")
 
-
-def findTiles(img):
+class board:
+    def __init__(self, path_to_image):
+        self.path = path_to_image
+        self.image = self.readImage(self.path)
     
-    tiles = [img[x:x+100,y:y+100] for x in range(0,img.shape[0],100) for y in range(0,img.shape[1],100)]
-    return tiles
+    def readImage(self, path):
+        ''' The function reads the board using openCV \n
+        
+            Parameters: \n
 
-sliced = findTiles(img)
+            path: A path to the picture of the board
+            
+            color_bool: A boolean determining whether the image is read in color or grayscale (1 is color, 0 is grayscale)
+            
+            '''
+        returnImage = cv2.imread(path)
+        return returnImage
 
-imgHSV = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    def showBoard(self, name="Window"):
+        ''' The function displays an image using openCV \n
+        
+            Parameters: \n
 
-imgEQU = cv2.equalizeHist(imgHSV[:,:,2])
+            image: A np.array containing an image
+            
+            name: A string with the title of the display window (default is 'window')
+            
+            '''
+        cv2.imshow(name, self.image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-cv2.imshow('wond', imgEQU)
+    def showBoard(self, name="Window"):
+        ''' The function displays an image using openCV \n
+        
+            Parameters: \n
 
-test =cv2.putText(sliced[2],'test', (20,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255),2)
+            image: A np.array containing an image
+            
+            name: A string with the title of the display window (default is 'window')
+            
+            '''
+        cv2.imshow(name, self.image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-cv2.imshow('win', test)
-cv2.waitKey(0)
-#morten
+
+
+
+
+
+
+def main():
+    board1 = board('Cropped and perspective corrected boards/2dreez.jpg')
+
+    board1.showImage()
+
+
+
+
+
+if __name__ == "__main__":
+    main()
