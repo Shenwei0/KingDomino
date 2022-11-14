@@ -5,8 +5,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from KingDominoFunctions import findTiles, readImage, showImage
 from MakeDataBasedOnImages import extractTileFeatures
 
-def KNN(observation, training, ground_truth, k = 3):
-    '''The function utilises the sklearn library to approximate which biome an observe tile classifies as.
+def KNN(observation, training, ground_truth, k = 5):
+    '''The function utilises the sklearn library to approximate which biome an observed tile classifies as.
         The data from the observation and the training set, should be normalized before use to get the best result\n
     
         Parameters: \n
@@ -21,7 +21,7 @@ def KNN(observation, training, ground_truth, k = 3):
     
     '''
     # Making a classifier
-    classifier = KNeighborsClassifier(k,weights='uniform', algorithm='brute')
+    classifier = KNeighborsClassifier(k,weights='distance', algorithm='brute')
 
     # Fitting the data to the classifier
     classifier.fit(X=training, y=ground_truth)
@@ -60,12 +60,68 @@ def normalize_test_data(arr, dataFrame):
     '''
     return (arr-dataFrame.mean())/dataFrame.std()
     
+def identifyBoard(tiles, path_to_data):
+    '''The function guesses the biome on each tile and safes the result in a (5,5) matrix \n
+    
+    Parameters:
+    
+    tiles: A dictionary containing the different tiles
+
+    return: An dictionary with the guessed biome names
+    '''
+
+    # Read data from the data file
+    data = pd.read_csv(path_to_data)
+
+    # Pop the names and convert to numpy in order to use them as ground_truth
+    biome_names = data.pop('Biome')
+    biome_names = biome_names.to_numpy()
+
+    # normalize data and convert to numpy
+    data_normalized_features = normalize_dataFrame(data).to_numpy()
+
+    biomes = {}
+
+    # Loop over each tile to collect feature data
+    for y in range(5):
+        for x in range(5):
+
+            # Extract features from the tile
+            tile_feature = extractTileFeatures(tiles[y,x])
+
+            # Normalize tile features
+            tile_feature_normalized = normalize_test_data(tile_feature, data)
 
 
+            # Predict the tiles biome and safe the result in the dictionary
+            biomes[y,x] = KNN(tile_feature_normalized, data_normalized_features, biome_names)
+
+            # Print for debugging
+            #print(f'Biome ({y}, {x}) should be: {biomes[y,x]}')
+
+    return biomes
+
+def drawBiomes(biome, img):
+    '''The functions adds the biome name to each individual tile \n
+
+        Parameters:
+
+        biome: A dictionary containing the tile names
+
+        img: The image onto which it should be drawn
+    '''
+    image = img.copy()
+
+    # Draw the result on the tiles
+    # Loop over the different tiles
+    for y in range(5):
+        for x in range(5):
+            image = cv2.putText(image,f'{biome[y,x]}', (((x*100)+10),(y*100)+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255),2)
+    return image
 
 def main():
-
-    # pop biome names from csv file, to give them numbers instead of string names
+    """ 
+    # Read data from the data file
     data = pd.read_csv('./data.csv')
 
 
@@ -75,24 +131,43 @@ def main():
 
     # normalize data and convert to numpy
     data_normalized_features = normalize_dataFrame(data).to_numpy()
-
+ """
 
     # Read an image
-    img = readImage('Cropped and perspective corrected boards/24-52-20t-train.jpg')
+    img = readImage('Cropped and perspective corrected boards/67-99.jpg')
+
+    #Make a copy of the image
+    imgCopy = np.copy(img)
 
     # Split it into tiles
     imgTiles = findTiles(img)
 
-    # Extract features from the wanted tile
-    tile_feature = extractTileFeatures(imgTiles[11])
+    # Extract features from the tiles
+    biomes = identifyBoard(imgTiles, './data.csv')
 
-    # Normalize tile features
-    tile_feature_normalized = normalize_test_data(tile_feature, data)
+    # Draw biome names on the tiles
+    imgCopy = drawBiomes(biomes, imgCopy)
 
+    # show the image
+    #showImage(imgCopy)
 
-    # Predict which biome is needed
-    print(KNN(tile_feature_normalized, data_normalized_features, biome_names))
+    print(biomes[4,4])
 
+    
+""" 
+     # Extract features from the tiles
+    for y in range(5):
+        for x in range(5):
+            tile_feature = extractTileFeatures(imgTiles[y,x])
+
+            # Normalize tile features
+            tile_feature_normalized = normalize_test_data(tile_feature, data)
+
+            # Predict which biome is needed
+            print(f'Biome ({y}, {x}) should be: {KNN(tile_feature_normalized, data_normalized_features, biome_names)}')
+            imgCopy = cv2.putText(imgCopy,f'{KNN(tile_feature_normalized, data_normalized_features, biome_names)}', (((x*100)+10),(y*100)+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255),2)
+
+    showImage(imgCopy) """
 
 
 if __name__ == "__main__":

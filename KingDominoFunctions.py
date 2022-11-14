@@ -49,10 +49,10 @@ def findTiles(image):
         The function will work even if the image isn't an (500,500), however the output will not be as expected
 
     '''
-    tiles = []
+    tiles = {}
     for y in range(0, image.shape[0], 100):
         for x in range(0, image.shape[1], 100):
-            tiles.append(image[y:y+100, x:x+100])
+            tiles[y/100,x/100] = image[y:y+100, x:x+100]
     return tiles
 
 

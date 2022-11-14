@@ -59,11 +59,9 @@ def extractTrainingFeatures(path_to_biomes):
     biomes_data_rows = []    
     
     # Array with different folder names, to use when going through each training tile
-    biome_paths = ['blue_start', ' blue_castle_start', 'forest_biome', 
-                    'forest_house_biome', 'grass_biome', 'grass_house_biome', 
-                    'green_start', 'green_castle_start', 'mine_biome', 'red_start', 'red_castle_start',
-                    'swamp_biome', 'swamp_house_biome', 'water_biome', 'water_house_biome', 
-                    'wheat_biome', 'wheat_house_biome', 'wood_table', 'yellow_start', 'yellow_castle_start']
+    biome_paths = ['forest', 'grass', 'mine', 'start_blue',
+                     'start_red', 'start_yellow', 'start_green',
+                      'start_castle', 'swamp', 'water', 'wheat']
     
     # For every biome, find the values of the features
     for biomes in biome_paths:
@@ -86,34 +84,70 @@ def extractTrainingFeatures(path_to_biomes):
 
 
 def extractTileFeatures(imageTile, biome = 0):
-    biomes_data_rows = []    # For every biome, find the values of the features
-
     # Do different feature extractions
 
     # Find hue and saturation
     imgHSV = cv2.cvtColor(imageTile, cv2.COLOR_BGR2HSV)
-    H, S, _ = extractData3ChannelsMean(imgHSV)
+    Hm, Sm, _ = extractData3ChannelsMean(imgHSV)
 
     # Find YCrCb features
     imgYCrCb = cv2.cvtColor(imageTile, cv2.COLOR_BGR2YCrCb)
+    _, Crm, Cbm = extractData3ChannelsMean(imgYCrCb)
 
-    # R G and B means equalized for brigthness
+
+    # R G and B means after equalization of brigthness
     imgEQU = cv2.equalizeHist(imgHSV[:,:,2])
+    imgHSV_equalized = imgHSV
+    imgHSV_equalized[:,:,2] = imgEQU
+
+    # Convert back to RGB and take mean of RGB channels
+    imgRGB = cv2.cvtColor(imgHSV_equalized, cv2.COLOR_HSV2RGB)
+    Rm, Gm, Bm = extractData3ChannelsMean(imgRGB)
+
+    # Count indicidual colors in the hue scale
+    blue_pixels = 0
+    yellow_pixels = 0
+    red_pixels = 0
+    green_pixels = 0
+    brown_pixels = 0
+    black_pixels = 0
+
+    for y in range(imageTile.shape[0]):
+        for x in range(imageTile.shape[1]):
+            if (95 < imgHSV[y,x,0] and imgHSV[y,x,0] < 135):
+                blue_pixels += 1
+        
+            if (170 < imgHSV[y,x,0] or imgHSV[y,x,0] < 10):
+                red_pixels += 1
+            
+            if (20 < imgHSV[y,x,0] and imgHSV[y,x,0] < 35):
+                yellow_pixels += 1
+            
+            if (40 < imgHSV[y,x,0] and imgHSV[y,x,0] < 80):
+                green_pixels += 1
+
+            if (10 < imgHSV[y,x,0] and imgHSV[y,x,0] < 20):
+                brown_pixels += 1
+
+            if (35 > imageTile[y,x,0] and imageTile[y,x,1] < 35 and imageTile[y,x,2] < 35):
+                black_pixels += 1
+
+
 
     
 
     # Return array with features
-    if (biome == 0):
-        return [H,S]
+    if biome == 0:
+        return [Hm, Sm, Rm, Gm, Bm, Crm, Cbm, blue_pixels, green_pixels, red_pixels, yellow_pixels, brown_pixels, black_pixels]
     else:
-        return [H, S, biome]
+        return [Hm, Sm, Rm, Gm, Bm, Crm, Cbm, blue_pixels, green_pixels, red_pixels, yellow_pixels, brown_pixels, black_pixels, biome]
 
 
 
 
 def main():
-    folder_path = '/Users/mortenstephansen/Documents/GitHub/KingDomino/slices/'
-    header = ['Hue mean', 'Saturation mean', 'Biome']
+    folder_path = '/Users/mortenstephansen/Documents/GitHub/KingDomino/DataSet/'
+    header = ['Hue mean', 'Saturation mean', 'Red mean', 'Green mean', 'Blue mean', 'R from luminance mean', 'B from luminance mean', 'Blue pixels', 'Green_pixels', 'Red pixels', 'Yellow pixels', 'Brown pixels', 'Black pixels', 'Biome']
 
     data_rows = extractTrainingFeatures(folder_path)
                 
