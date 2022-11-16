@@ -1,6 +1,8 @@
 import cv2
 import numpy as np
-from identifyBiomes import identifyBoard
+from identifyBiomes import identifyBoard, drawBiomes
+from BiomeFire import biomeBurner
+from CrownFinder import templateMatchAll, drawMatches
 
 
 class board:
@@ -12,7 +14,7 @@ class board:
         self.tile_biomes = self.__identifyTiles()
         
 
-    def showBoard(self, name="Board"):
+    def showBoard(self, name="Board", with_biomes = 0):
         ''' The function displays the board using openCV \n
         
             Parameters: \n
@@ -22,7 +24,13 @@ class board:
             name: A string with the title of the display window (default is 'Board')
             
             '''
-        cv2.imshow(name, self.image)
+        if (with_biomes == 1):
+            image = self.image.copy()
+            image = drawBiomes(self.tile_biomes, image)
+            image = drawMatches(image,)
+        else:
+            image = self.image
+        cv2.imshow(name, image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
@@ -50,7 +58,23 @@ class board:
             
             
             '''
-        pass
+        biome_array = self.__makeBiomeArray()
+
+        biomes_dict = biomeBurner(biome_array)
+
+        score = 0
+
+        for connected_biome in range(len(biomes_dict)):
+            crowns = 0
+            for tile in range(len(biomes_dict[connected_biome+1])):
+                y,x = biomes_dict[connected_biome+1][tile]
+                crowns_squares = templateMatchAll(self.tiles[y,x])
+                crowns += len(crowns_squares)
+            score += crowns * len(biomes_dict[connected_biome+1])
+    
+        return score
+
+
 
     def __splitTiles(self):
         '''The function splits the board into 25 pieces and returns a dictionary with the images.
@@ -78,21 +102,64 @@ class board:
         return returnImage
 
     def __identifyTiles(self):
+        '''The function uses the identifyBoard function from the identifyBiomes.py file'''
         return identifyBoard(self.tiles, self.path_to_data)
-        
 
+    def __makeBiomeArray(self):
+        '''The function uses the tile_biomes dictionary to make an array where the biome names are numbers \n
+        This makes it easier to run a grassfire function on the array \n
 
+        The biome names will get the following numbers:
+             Biomes: \n
 
+                Start  = 0
+
+                Grass  = 1
+
+                Wheat  = 2
+
+                Mine   = 3
+
+                Swamp  = 4
+
+                Forest = 5
+
+                Water  = 6
+        '''
+        biome_array = {}
+        for y in range(5):
+            for x in range(5):
+                if (self.tile_biomes[y,x] == 'forest'):
+                    biome_array[y,x] = 5
+                elif(self.tile_biomes[y,x] == 'mine'):
+                    biome_array[y,x] = 3
+                elif(self.tile_biomes[y,x] == 'grass'):
+                    biome_array[y,x] = 1
+                elif(self.tile_biomes[y,x] == 'swamp'):
+                    biome_array[y,x] = 4
+                elif(self.tile_biomes[y,x] == 'water'):
+                    biome_array[y,x] = 6
+                elif(self.tile_biomes[y,x] == 'wheat'):
+                    biome_array[y,x] = 2
+                else:
+                    biome_array[y,x] = 0
+        return biome_array
+
+    def __countCrowns(self, image):
+        crowns = templateMatchAll(image)
+        return crowns
 
 
 
 
 def main():
-    board1 = board('Cropped and perspective corrected boards/2dreez.jpg')
+    # 56
+    board1 = board('Cropped and perspective corrected boards/56-44.jpg')
 
+    #board1.showBoard(with_biomes=1)
 
+    print(f'This board\'s score is: {board1.calculateScore()}')
 
-    print(board1.tile_biomes[4,4])
 
 
 

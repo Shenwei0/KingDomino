@@ -134,7 +134,7 @@ def main():
  """
 
     # Read an image
-    img = readImage('Cropped and perspective corrected boards/67-99.jpg')
+    img = readImage('Cropped and perspective corrected boards/2dreez.jpg')
 
     #Make a copy of the image
     imgCopy = np.copy(img)
@@ -149,9 +149,9 @@ def main():
     imgCopy = drawBiomes(biomes, imgCopy)
 
     # show the image
-    #showImage(imgCopy)
+    showImage(imgCopy)
 
-    print(biomes[4,4])
+
 
     
 """ 

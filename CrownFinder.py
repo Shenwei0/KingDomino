@@ -19,9 +19,10 @@ def openImage(image, title='Window'):
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-boxes = list()
-def doTemplateMatch(image, template, threshold = 0.60, blurBool = 0):
+
+def doTemplateMatch(boxes_list, image, template, threshold = 0.60, blurBool = 0):
     '''This function does template matching on an image, with a template \n
+        boxes_list: A list with the coordinates for each rectangle
         Image: An input image \n
         Template: A template \n
         Threshold: The threshold for accepting a match'''
@@ -50,13 +51,11 @@ def doTemplateMatch(image, template, threshold = 0.60, blurBool = 0):
         # Use the shape to find the width and height of the image
         W, H = template[current_template].shape[:2]
 
-        # Make sure the global variable boxes is accessible
-        global boxes
-
         # Loop over the matches' (x, y)-coordinates
         for (x, y) in zip(x_points, y_points):
             # Append the point to the list with coodinates as well as the other end-corner of the box
-            boxes.append((x, y, x + W, y + H))
+            boxes_list.append((x, y, x + W, y + H))
+    return boxes_list
 
 def rotateTemp(template):
     '''Take an input (image) and rotates it 3 times and returns the original, turned 90 degrees clockwise, 180 degress, and 90 degress counter-clockwise \n
@@ -81,78 +80,69 @@ def blurTempAll(template, ksize=5):
     template.append(cv2.GaussianBlur(template[2],(ksize,ksize), 0))
     template.append(cv2.GaussianBlur(template[3],(ksize,ksize), 0))
 
-def drawMatches(image):
-    '''Apply non-maxima suppression to the global boxes variable. This will create a single bounding box.
-        Input: The image on which the boxes will be drawn
+def drawMatches(image, boxes_list):
+    '''This will create a single bounding box.
+        image: The image on which the boxes will be drawn
+        boxes_list: The list with the box coordinates
         Output: The input image with boxes around each crown (hopefully)
     '''
-    # Make sure we can access the global variable boxes
-    global boxes
+
+    # Loop over the final bounding boxes
+    for (x1, y1, x2, y2) in boxes_list:
+        # Draw the bounding box on the image
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 3)
+
+def templateMatchAll(image):
+    boxes = list()
+    temp_swamp, temp_wheat, temp_grass, temp_mine, temp_water, temp_forest = loadTemplates()
+    boxes = doTemplateMatch(boxes, image, temp_swamp)
+    boxes = doTemplateMatch(boxes, image, temp_mine)
+    boxes = doTemplateMatch(boxes, image, temp_water)
+    boxes = doTemplateMatch(boxes, image, temp_forest)
+    boxes = doTemplateMatch(boxes, image, temp_grass, 0.7)
+    boxes = doTemplateMatch(boxes, image, temp_wheat)
 
     # Use non max suppression on the list of boxes to make use non are counted more than ones
     boxes = non_max_suppression(np.array(boxes))
 
-    # Loop over the final bounding boxes
-    for (x1, y1, x2, y2) in boxes:
-        # Draw the bounding box on the image
-        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 3)
-
-def templateMatchAll():
-    doTemplateMatch(img, temp_swamp)
-    doTemplateMatch(img, temp_mine)
-    doTemplateMatch(img, temp_water)
-    doTemplateMatch(img, temp_forest)
-    doTemplateMatch(img, temp_grass, 0.7)
-    doTemplateMatch(img, temp_wheat)
+    return boxes
 
 def loadTemplates():
-    # Make them all accessibler
-    global temp_swamp
-    global temp_wheat
-    global temp_grass
-    global temp_mine
-    global temp_water
-    global temp_forest
-
     # Load template images and rotate them
-    temp_swamp = cv2.imread("Crowns/swamp.jpg")
-    temp_wheat = cv2.imread("Crowns/wheat.jpeg")
-    temp_grass = cv2.imread("Crowns/grass.jpg")
-    temp_mine = cv2.imread("Crowns/mine.jpg")
-    temp_water = cv2.imread("Crowns/water.jpg")
-    temp_forest = cv2.imread("Crowns/forest.jpg")
+    temp_swamp = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/swamp.jpg")
+    temp_wheat = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/wheat.jpeg")
+    temp_grass = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/grass.jpg")
+    temp_mine = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/mine.jpg")
+    temp_water = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/water.jpg")
+    temp_forest = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/forest.jpg")
+
+    # Return the images
+    return temp_swamp, temp_wheat, temp_grass, temp_mine, temp_water, temp_forest
+
+
+def main():
+    # Find all pictures used for training
+    os.chdir('./Cropped and perspective corrected boards')
+    train_photos = glob.glob('./59-38.jpg')
+
+    print(len(train_photos))
+    # Loop igennem billeder
+    for image in range(len(train_photos)):
+
+        # Load billede
+        img = cv2.imread(train_photos[image])
 
 
 
-""" # Load billede
-path = '17-40-train.jpg'
-img = cv2.imread(f'./Cropped and perspective corrected boards/{path}')
-
- """
- # load templates
-loadTemplates()
-
-# Find all pictures used for training
-os.chdir('./Cropped and perspective corrected boards')
-train_photos = glob.glob('./*reez.jpg')
-
-print(len(train_photos))
-# Loop igennem billeder
-for image in range(len(train_photos)):
-
-    # Load billede
-    img = cv2.imread(train_photos[image])
+        # Do templpate matching and draw boxes
+        boxes = templateMatchAll(img)
+        drawMatches(img, boxes)
+        print(len(boxes))
 
 
+        # åben billede
+        openImage(img, f'{train_photos[image]}')
 
-    # Do templpate matching and draw boxes
-    templateMatchAll()
-    drawMatches(img)
-    print(len(boxes))
 
-    # Reset crowns found to prepare for next image
-    boxes = list()
-
-    # åben billede
-    openImage(img, f'{train_photos[image]}')
-
+if __name__ == "__main__":
+    main()
