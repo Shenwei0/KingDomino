@@ -1,16 +1,169 @@
 import cv2
 import numpy as np
+from identifyBiomes import identifyBoard, drawBiomes
+from BiomeFire import biomeBurner
+from CrownFinder import templateMatchAll, drawMatches
 
-img = cv2.imread("Cropped and perspective corrected boards/4-42.jpg")
 
-height, width, channels = img.shape
+class board:
+    def __init__(self, path_to_image, path_to_data='./data.csv'):
+        self.path_to_image = path_to_image
+        self.path_to_data = path_to_data
+        self.image = self.__readImage()
+        self.tiles = self.__splitTiles()
+        self.tile_biomes = self.__identifyTiles()
+        
 
-imgBredde = int(width/5)
-imgHøjde = int(height/5)
+    def showBoard(self, name="Board", with_biomes = 0):
+        ''' The function displays the board using openCV \n
+        
+            Parameters: \n
 
-for Ysquare in range(5):
-    for Xsquare in range(5):
-        imgSliced = img[imgHøjde*Ysquare:imgHøjde*(Ysquare+1), imgBredde*Xsquare:imgBredde*(Xsquare+1)]
-        cv2.imshow(f"Sliced{Xsquare} x {Ysquare}", imgSliced)
+            image: A np.array containing an image
+            
+            name: A string with the title of the display window (default is 'Board')
+            
+            '''
+        if (with_biomes == 1):
+            image = self.image.copy()
+            image = drawBiomes(self.tile_biomes, image)
+            image = drawMatches(image,)
+        else:
+            image = self.image
+        cv2.imshow(name, image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
 
-cv2.waitKey(0)
+
+    def showTile(self, tile_YX):
+        ''' The function displays a tile from the board using openCV \n
+        
+            Parameters: \n
+
+            image: A np.array containing an image
+            
+            name: A string with the title of the display window (default is 'Tile')
+            
+            '''
+        y, x = tile_YX
+
+        cv2.imshow(f'Tile ({y},{x})', self.tiles[y,x])
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
+    def calculateScore(self):
+        '''The function utilises the grassfire method, to segment the biome-blocks from each other in order to calculate score. \n
+            This will be done for all the biomes and the score, will then be the sum of the biomes' scores. \n
+            
+            
+            '''
+        biome_array = self.__makeBiomeArray()
+
+        biomes_dict = biomeBurner(biome_array)
+
+        score = 0
+
+        for connected_biome in range(len(biomes_dict)):
+            crowns = 0
+            for tile in range(len(biomes_dict[connected_biome+1])):
+                y,x = biomes_dict[connected_biome+1][tile]
+                crowns_squares = templateMatchAll(self.tiles[y,x])
+                crowns += len(crowns_squares)
+            score += crowns * len(biomes_dict[connected_biome+1])
+    
+        return score
+
+
+
+    def __splitTiles(self):
+        '''The function splits the board into 25 pieces and returns a dictionary with the images.
+        '''
+
+        tiles = {}
+
+        for y in range(0, self.image.shape[0], 100):
+            for x in range(0, self.image.shape[1], 100):
+                tiles[y/100,x/100] = self.image[y:y+100, x:x+100]
+
+        return tiles
+
+    def __readImage(self):
+        ''' The function reads the board using openCV \n
+            
+            Parameters: \n
+
+            path: A path to the picture of the board
+                
+            color_bool: A boolean determining whether the image is read in color or grayscale (1 is color, 0 is grayscale)
+                
+            '''
+        returnImage = cv2.imread(self.path_to_image)
+        return returnImage
+
+    def __identifyTiles(self):
+        '''The function uses the identifyBoard function from the identifyBiomes.py file'''
+        return identifyBoard(self.tiles, self.path_to_data)
+
+    def __makeBiomeArray(self):
+        '''The function uses the tile_biomes dictionary to make an array where the biome names are numbers \n
+        This makes it easier to run a grassfire function on the array \n
+
+        The biome names will get the following numbers:
+             Biomes: \n
+
+                Start  = 0
+
+                Grass  = 1
+
+                Wheat  = 2
+
+                Mine   = 3
+
+                Swamp  = 4
+
+                Forest = 5
+
+                Water  = 6
+        '''
+        biome_array = {}
+        for y in range(5):
+            for x in range(5):
+                if (self.tile_biomes[y,x] == 'forest'):
+                    biome_array[y,x] = 5
+                elif(self.tile_biomes[y,x] == 'mine'):
+                    biome_array[y,x] = 3
+                elif(self.tile_biomes[y,x] == 'grass'):
+                    biome_array[y,x] = 1
+                elif(self.tile_biomes[y,x] == 'swamp'):
+                    biome_array[y,x] = 4
+                elif(self.tile_biomes[y,x] == 'water'):
+                    biome_array[y,x] = 6
+                elif(self.tile_biomes[y,x] == 'wheat'):
+                    biome_array[y,x] = 2
+                else:
+                    biome_array[y,x] = 0
+        return biome_array
+
+    def __countCrowns(self, image):
+        crowns = templateMatchAll(image)
+        return crowns
+
+
+
+
+def main():
+    # 56
+    board1 = board('Cropped and perspective corrected boards/56-44.jpg')
+
+    #board1.showBoard(with_biomes=1)
+
+    print(f'This board\'s score is: {board1.calculateScore()}')
+
+
+
+
+
+
+if __name__ == "__main__":
+    main()
