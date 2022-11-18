@@ -134,7 +134,7 @@ def main():
  """
 
     # Read an image
-    img = readImage('Cropped and perspective corrected boards/2dreez.jpg')
+    img = readImage('Cropped and perspective corrected boards/14-38-10t-train.jpg')
 
     #Make a copy of the image
     imgCopy = np.copy(img)

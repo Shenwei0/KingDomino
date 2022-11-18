@@ -9,6 +9,7 @@ class board:
     def __init__(self, path_to_image, path_to_data='./data.csv'):
         self.path_to_image = path_to_image
         self.path_to_data = path_to_data
+        self.path_to_crowns = f'{path_to_image}/../Crowns'
         self.image = self.__readImage()
         self.tiles = self.__splitTiles()
         self.tile_biomes = self.__identifyTiles()
@@ -68,7 +69,7 @@ class board:
             crowns = 0
             for tile in range(len(biomes_dict[connected_biome+1])):
                 y,x = biomes_dict[connected_biome+1][tile]
-                crowns_squares = templateMatchAll(self.tiles[y,x])
+                crowns_squares = templateMatchAll(self.tiles[y,x], self.path_to_crowns)
                 crowns += len(crowns_squares)
             score += crowns * len(biomes_dict[connected_biome+1])
     
@@ -145,16 +146,12 @@ class board:
                     biome_array[y,x] = 0
         return biome_array
 
-    def __countCrowns(self, image):
-        crowns = templateMatchAll(image)
-        return crowns
-
 
 
 
 def main():
-    # 56
-    board1 = board('Cropped and perspective corrected boards/56-44.jpg')
+    # Initialize class instance
+    board1 = board('Cropped and perspective corrected boards/14-38-10t-train.jpg')
 
     #board1.showBoard(with_biomes=1)
 
