@@ -92,9 +92,9 @@ def drawMatches(image, boxes_list):
         # Draw the bounding box on the image
         cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 3)
 
-def templateMatchAll(image):
+def templateMatchAll(image, path_to_temp):
     boxes = list()
-    temp_swamp, temp_wheat, temp_grass, temp_mine, temp_water, temp_forest = loadTemplates()
+    temp_swamp, temp_wheat, temp_grass, temp_mine, temp_water, temp_forest = loadTemplates(path_to_temp)
     boxes = doTemplateMatch(boxes, image, temp_swamp)
     boxes = doTemplateMatch(boxes, image, temp_mine)
     boxes = doTemplateMatch(boxes, image, temp_water)
@@ -107,14 +107,15 @@ def templateMatchAll(image):
 
     return boxes
 
-def loadTemplates():
+def loadTemplates(path_to_crowns_folder):
+    
     # Load template images and rotate them
-    temp_swamp = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/swamp.jpg")
-    temp_wheat = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/wheat.jpeg")
-    temp_grass = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/grass.jpg")
-    temp_mine = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/mine.jpg")
-    temp_water = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/water.jpg")
-    temp_forest = cv2.imread("/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns/forest.jpg")
+    temp_swamp = cv2.imread(f"{path_to_crowns_folder}/swamp.jpg")
+    temp_wheat = cv2.imread(f"{path_to_crowns_folder}/wheat.jpeg")
+    temp_grass = cv2.imread(f"{path_to_crowns_folder}/grass.jpg")
+    temp_mine = cv2.imread(f"{path_to_crowns_folder}/mine.jpg")
+    temp_water = cv2.imread(f"{path_to_crowns_folder}/water.jpg")
+    temp_forest = cv2.imread(f"{path_to_crowns_folder}/forest.jpg")
 
     # Return the images
     return temp_swamp, temp_wheat, temp_grass, temp_mine, temp_water, temp_forest
@@ -135,7 +136,7 @@ def main():
 
 
         # Do templpate matching and draw boxes
-        boxes = templateMatchAll(img)
+        boxes = templateMatchAll(img, '/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns')
         drawMatches(img, boxes)
         print(len(boxes))
 
