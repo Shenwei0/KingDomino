@@ -6,9 +6,13 @@ from CrownFinder import templateMatchAll, drawMatches
 
 
 class board:
-    def __init__(self, path_to_image, path_to_data='./data.csv'):
+    def __init__(self, path_to_image, path_to_Crowns, path_to_data='./data.csv'):
         self.path_to_image = path_to_image
         self.path_to_data = path_to_data
+<<<<<<< Updated upstream
+=======
+        self.path_to_crowns = path_to_Crowns
+>>>>>>> Stashed changes
         self.image = self.__readImage()
         self.tiles = self.__splitTiles()
         self.tile_biomes = self.__identifyTiles()
@@ -153,10 +157,17 @@ class board:
 
 
 def main():
+<<<<<<< Updated upstream
     # 56
     board1 = board('Cropped and perspective corrected boards/56-44.jpg')
+=======
+    # Initialize class instance
+    board1 = board('/Users/mortenstephansen/Documents/GitHub/KingDomino/Cropped and perspective corrected boards/2dreez.jpg', '/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns')
+>>>>>>> Stashed changes
 
-    #board1.showBoard(with_biomes=1)
+    #board1.showBoard(with_biomes=1)   
+
+    print(f'{board1.path_to_crowns}')
 
     print(f'This board\'s score is: {board1.calculateScore()}')
 

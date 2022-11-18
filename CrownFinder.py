@@ -1,7 +1,7 @@
+import glob
+import os
 import cv2
 import numpy as np
-import os
-import glob
 from imutils.object_detection import non_max_suppression
 
 # Denne fil prøver at finde crowns vha. template matching.
