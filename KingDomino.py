@@ -9,7 +9,7 @@ class board:
     def __init__(self, path_to_image, path_to_Crowns, path_to_data='./data.csv'):
         self.path_to_image = path_to_image
         self.path_to_data = path_to_data
-        self.path_to_crowns = f'{path_to_image}/../Crowns'
+        self.path_to_crowns = path_to_Crowns
         self.image = self.__readImage()
         self.tiles = self.__splitTiles()
         self.tile_biomes = self.__identifyTiles()
@@ -151,7 +151,7 @@ class board:
 
 def main():
     # Initialize class instance
-    board1 = board('Cropped and perspective corrected boards/14-38-10t-train.jpg')
+    board1 = board('C:/Users/Shenwei/Documents/GitHub/KingDomino/Cropped and perspective corrected boards/66-124.jpg', 'C:/Users/Shenwei/Documents/GitHub/KingDomino/Crowns')
 
     #board1.showBoard(with_biomes=1)   
 
