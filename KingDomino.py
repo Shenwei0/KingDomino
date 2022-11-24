@@ -1,6 +1,6 @@
 import cv2
 import numpy as np
-from identifyBiomes import identifyBoard, drawBiomes
+from identifyBiomes import identifyBoard, drawBiomes, colorBiomes
 from BiomeFire import biomeBurner
 from CrownFinder import templateMatchAll, drawMatches
 
@@ -9,13 +9,13 @@ class board:
     def __init__(self, path_to_image, path_to_Crowns, path_to_data='./data.csv'):
         self.path_to_image = path_to_image
         self.path_to_data = path_to_data
-        self.path_to_crowns = f'{path_to_image}/../Crowns'
+        self.path_to_crowns = path_to_Crowns
         self.image = self.__readImage()
         self.tiles = self.__splitTiles()
         self.tile_biomes = self.__identifyTiles()
         
 
-    def showBoard(self, name="Board", with_biomes = 0):
+    def showBoard(self, name="Board", with_biomes = False, with_crowns = False):
         ''' The function displays the board using openCV \n
         
             Parameters: \n
@@ -25,15 +25,41 @@ class board:
             name: A string with the title of the display window (default is 'Board')
             
             '''
+        # Load the image of the board
+        image = self.image.copy()
+        
+        # If the user wants to see biomes - draw them
         if (with_biomes == 1):
-            image = self.image.copy()
             image = drawBiomes(self.tile_biomes, image)
-            image = drawMatches(image,)
-        else:
-            image = self.image
+
+
+        # If the user wants to see crowns - draw them
+        if (with_crowns == 1):
+            boxes = templateMatchAll(self.image, self.path_to_crowns)
+            image = drawMatches(image, boxes)
+
         cv2.imshow(name, image)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+    def showGraphic(self, name='Graphical representation of the board'):
+        ''' The function displays the board as openCV sees it \n
+        
+            Parameters: \n
+            
+            name: Window name
+            
+        '''
+        image = colorBiomes(self.tile_biomes)
+
+        boxes = templateMatchAll(self.image, self.path_to_crowns)
+        image = drawMatches(image, boxes)
+
+        cv2.imshow(name, image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+
 
 
     def showTile(self, tile_YX):
@@ -151,11 +177,11 @@ class board:
 
 def main():
     # Initialize class instance
-    board1 = board('Cropped and perspective corrected boards/14-38-10t-train.jpg')
+    board1 = board('/Users/mortenstephansen/Documents/GitHub/KingDomino/Cropped and perspective corrected boards/2dreez.jpg', '/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns')
 
-    #board1.showBoard(with_biomes=1)   
+    board1.showGraphic()
 
-    print(f'{board1.path_to_crowns}')
+    #print(f'{board1.path_to_crowns}')
 
     print(f'This board\'s score is: {board1.calculateScore()}')
 

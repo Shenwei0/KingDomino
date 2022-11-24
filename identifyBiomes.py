@@ -119,6 +119,39 @@ def drawBiomes(biome, img):
             image = cv2.putText(image,f'{biome[y,x]}', (((x*100)+10),(y*100)+50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,0,255),2)
     return image
 
+
+def colorBiomes(biome_arr):
+    '''The function makes a visual representation of the detected biomes
+    '''
+    image = np.zeros((500,500, 3), dtype=np.uint8)
+
+    # Colors for biomes
+    start_biome = [122, 122, 122]
+    water = [233, 169, 23]
+    grass = [92, 217, 110]
+    forest = [26, 82, 34]
+    mine = [0,0,0]
+    wheat = [8, 192, 235]
+    swamp = [30, 101, 140]
+
+    for y in range(5):
+        for x in range(5):
+            if (biome_arr[y,x] == 'forest'):
+                image[(y*100):(y*100)+100, x*100:(x*100)+100] = forest
+            elif (biome_arr[y,x] == 'mine'):
+                image[y*100:y*100+100, x*100:x*100+100] = mine
+            elif (biome_arr[y,x] == 'wheat'):
+                image[y*100:y*100+100, x*100:x*100+100] = wheat
+            elif (biome_arr[y,x] == 'swamp'):
+                image[y*100:y*100+100, x*100:x*100+100] = swamp
+            elif (biome_arr[y,x] == 'water'):
+                image[y*100:y*100+100, x*100:x*100+100] = water
+            elif (biome_arr[y,x] == 'grass'):
+                image[y*100:y*100+100, x*100:x*100+100] = grass
+            else:
+                image[y*100:y*100+100, x*100:x*100+100] = start_biome
+    return image
+
 def main():
     """ 
     # Read data from the data file
@@ -134,7 +167,7 @@ def main():
  """
 
     # Read an image
-    img = readImage('Cropped and perspective corrected boards/14-38-10t-train.jpg')
+    img = readImage('Cropped and perspective corrected boards/2dreez.jpg')
 
     #Make a copy of the image
     imgCopy = np.copy(img)
@@ -145,11 +178,14 @@ def main():
     # Extract features from the tiles
     biomes = identifyBoard(imgTiles, './data.csv')
 
+    # Draw biomes on 5x5 image
+    coloredBiome = colorBiomes(biomes)
+
     # Draw biome names on the tiles
     imgCopy = drawBiomes(biomes, imgCopy)
 
     # show the image
-    showImage(imgCopy)
+    showImage(coloredBiome)
 
 
 

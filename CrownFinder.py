@@ -49,7 +49,7 @@ def doTemplateMatch(boxes_list, image, template, threshold = 0.60, blurBool = 0)
         cv2.destroyWindow(f'{current_template}') """
 
         # Use the shape to find the width and height of the image
-        W, H = template[current_template].shape[:2]
+        H, W = template[current_template].shape[:2]
 
         # Loop over the matches' (x, y)-coordinates
         for (x, y) in zip(x_points, y_points):
@@ -90,7 +90,10 @@ def drawMatches(image, boxes_list):
     # Loop over the final bounding boxes
     for (x1, y1, x2, y2) in boxes_list:
         # Draw the bounding box on the image
-        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 3)
+        cv2.rectangle(image, (x1, y1), (x2, y2), (0, 0, 255), 2)
+
+    # return ther image with boxes
+    return image
 
 def templateMatchAll(image, path_to_temp):
     boxes = list()
