@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+import glob
 from identifyBiomes import identifyBoard, drawBiomes, colorBiomes
 from BiomeFire import biomeBurner
 from CrownFinder import templateMatchAll, drawMatches
@@ -15,7 +16,7 @@ class board:
         self.tile_biomes = self.__identifyTiles()
         
 
-    def showBoard(self, name="Board", with_biomes = False, with_crowns = False):
+    def showBoard(self, with_biomes = False, with_crowns = False, name="Board"):
         ''' The function displays the board using openCV \n
         
             Parameters: \n
@@ -176,17 +177,10 @@ class board:
 
 
 def main():
-    # Initialize class instance
-    board1 = board('/Users/mortenstephansen/Documents/GitHub/KingDomino/Cropped and perspective corrected boards/2dreez.jpg', '/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns')
 
-    board1.showGraphic()
+    board1 = board('/Users/mortenstephansen/Documents/GitHub/KingDomino/Cropped and perspective corrected boards/66-124-test.jpg', '/Users/mortenstephansen/Documents/GitHub/KingDomino/Crowns')
 
-    #print(f'{board1.path_to_crowns}')
-
-    print(f'This board\'s score is: {board1.calculateScore()}')
-
-
-
+    board1.showBoard(0, 1)
 
 
 
